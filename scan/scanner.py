@@ -1,7 +1,6 @@
-from lxml import html
-from util.selectors import *
 import requests
-
+from lxml import html
+from scan.selectors import *
 
 pageId = 31304
 
