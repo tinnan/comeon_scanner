@@ -9,20 +9,27 @@ except:
     exit(1)
 
 
-class History:
-    def __init__(self, obj):
-        self.obj = obj
+def diff_list(first, second):
+    """
+    ** Data type of elements in both list must matches.
+    Ex 1.
+        first = ['00001', '00002']
+        second = ['00001']
+        diff_list(first, second) -> ['00002']
 
-    def has_id(self, sid):
-        return self.obj.get(sid) is None
+    Ex 2.
+        first = ['00001', '00002']
+        second = ['00001', '00003']
+        diff_list(first, second) -> ['00002']
 
-    def add_chapter(self, sid, chapter):
-        if not self.has_id(sid):
-            self.obj[sid] = []
-        self.obj[sid].append(chapter)
+    Ex 3.
+        first = ['00001', '00002']
+        second = ['00003', '00004']
+        diff_list(first, second) -> ['00001', '00002']
 
-    def chapter_count(self, sid):
-        if not self.has_id(sid):
-            return 0
-        else:
-            return len(self.obj[sid])
+    :param first: first list
+    :param second: second list
+    :return: diff list
+    """
+    second = set(second)
+    return [item for item in first if item not in second]

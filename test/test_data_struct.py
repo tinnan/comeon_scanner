@@ -27,10 +27,11 @@ obj['8x741'] = []
 
 pprint(obj)
 
-obj['8x741'].append('หกีรหก')
+obj.get('8x741').append('หกีรหก')
 
 pprint(obj)
 
-obj.pop("00000")
+obj.get("00000")
 
 pprint(obj)
+print([e[1] for e in list(enumerate(obj))])
