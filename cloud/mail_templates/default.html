@@ -1,9 +1,26 @@
 <html>
     <head></head>
     <body>
-        <p>Hi!<br>
-            How are you?<br>
-            Here is the <a href="https://www.python.org">link</a> you wanted.
-        </p>
+        <p>Followed fiction update list.</p>
+        <table>
+            <thead>
+                <tr>
+                    <td>#</td>
+                    <td>Story</td>
+                    <td>Chapter</td>
+                    <td>Status</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in notifications %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ n.get_title() }}</td>
+                    <td><a href="{{ a.get_link() }}">{{ n.get_chapter() }}</a></td>
+                    <td>{{ n.get_status() }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </body>
 </html>
