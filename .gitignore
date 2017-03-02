@@ -95,3 +95,6 @@ ENV/
 
 # PyCharm IDE meta files
 .idea/
+
+# Secret configuration file
+/conf/secret.ini

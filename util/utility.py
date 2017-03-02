@@ -9,6 +9,13 @@ except:
     print('Application configuration file read failed.')
     exit(1)
 
+SECRET_CONFIG = ConfigParser()
+try:
+    SECRET_CONFIG.read('../conf/secret.ini')
+except:
+    print('Secret configuration file read failed. Make sure to run secret_setup.bat before starting the application.')
+    exit(1)
+
 CHAPTER_PATTERN = re.compile(r"^.*=(\d+).*=(\d+)$")
 
 

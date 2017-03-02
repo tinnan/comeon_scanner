@@ -11,15 +11,13 @@
                     <td>Status</td>
                 </tr>
             </thead>
-            <tbody>
-                {% for n in notifications %}
+            <tbody>{% for n in notifications %}
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ n.get_title() }}</td>
-                    <td><a href="{{ a.get_link() }}">{{ n.get_chapter() }}</a></td>
+                    <td><a href="{{ n.get_link() }}">{{ n.get_chapter() }}</a></td>
                     <td>{{ n.get_status() }}</td>
-                </tr>
-                {% endfor %}
+                </tr>{% endfor %}
             </tbody>
         </table>
     </body>
