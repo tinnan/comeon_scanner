@@ -118,7 +118,7 @@ class History:
         :param sid: story id
         :return: True if exists
         """
-        return self.obj.get(sid) is None
+        return self.obj.get(sid) is not None
 
     def has_chapter(self, sid, chid):
         """
@@ -129,7 +129,7 @@ class History:
         """
         if not self.has_sid(sid):
             return False
-        return self.obj.get(chid) is None
+        return self.obj.get(sid).get(chid) is not None
 
     def add_chapter(self, sid, chid, chapter, date):
         """
@@ -142,7 +142,7 @@ class History:
         """
         if not self.has_sid(sid):
             self.obj[sid] = {}  # Initiate class structure for new story.
-        if not self.has_chapter(chid):
+        if not self.has_chapter(sid, chid):
             self.obj[sid][chid] = {}  # Initiate class structure for new chapter.
         self.obj[sid][chid]['chapter'] = chapter
         self.obj[sid][chid]['date'] = date
@@ -156,7 +156,7 @@ class History:
         :param date: chapter update date
         :return:
         """
-        if self.has_sid(sid) and self.has_chapter(chid):
+        if self.has_sid(sid) and self.has_chapter(sid, chid):
             # Do update
             self.obj[sid][chid]['chapter'] = chapter
             self.obj[sid][chid]['date'] = date
