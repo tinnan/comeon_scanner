@@ -56,8 +56,8 @@ class TestListDiffFunction(unittest.TestCase):
 class TestConfigParser(unittest.TestCase):
 
     def test_load_complete(self):
-        mail_to = CONFIG['app']['mail.to']
-        self.assertEqual(mail_to, 'ntin.nan@gmail.com,\ntin_nan@hotmail.com')
+        mail_to = CONFIG['mail.to']
+        self.assertEqual(mail_to, 'ntin.nan@gmail.com,tin_nan@hotmail.com')
 
 if __name__ == '__main__':
     unittest.main()

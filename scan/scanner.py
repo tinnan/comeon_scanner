@@ -9,6 +9,18 @@ CHAP_STAT_UPD = 2  # Updated chapter
 CHAP_STAT_DEL = 3  # Deleted chapter
 
 
+def get_page(sid):
+    """
+    Get page contents.
+    :param sid: story id
+    :return: page contents as byte code
+    """
+    page_url = utility.CONFIG.config['comeon.story.url']
+    if utility.get_environ_param() == 'prod':
+        return requests.get(page_url.format(str(sid))).content
+    return None  # TODO change to return dummy comeon-book story page.
+
+
 class Scanner:
 
     def __init__(self):
@@ -16,19 +28,19 @@ class Scanner:
 
     def scan(self, follow_list, history):
         # Load page URL from config.
-        page_url = self.config['app']['comeon.story.url']
+        page_url = self.config['comeon.story.url']
         # Initiate function result.
         notification_list = []
         if follow_list:
             for sid in follow_list:
                 try:
                     # TODO should be able to inject page content according to execution environment
-                    page = requests.get(page_url.format(str(sid)))
+                    content = requests.get(page_url.format(str(sid)))
                 except:
                     print('Something went wrong while the program trying to open the URL. Try again later.')
                     continue
 
-                tree = html.fromstring(page.content)
+                tree = html.fromstring(content)
                 title_e = TITLE_SELECTOR(tree)
                 if title_e and title_e[0] is not None:
                     title = title_e[0].text
@@ -69,7 +81,7 @@ class Scanner:
                             # Build notification list.
                             notification_list.append(
                                 Notification(title, chapter_name,
-                                             self.config['app']['comeon.base.url'].format(chapter_url)))
+                                             self.config['comeon.base.url'].format(chapter_url)))
 
                         # Manage history, find deleted chapter.
                         del_chids = history.find_deleted_chapter(chid_list)
