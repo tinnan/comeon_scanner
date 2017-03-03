@@ -18,16 +18,34 @@ class TestTemplateEnvironment(unittest.TestCase):
         rendered = template.render(notifications=notifications)
         expected = """\
 <html>
-    <head></head>
+    <head>
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table th {
+          background: #98d5fb;
+        }
+
+        table th, td {
+          border: 1px solid;
+        }
+
+        table td {
+          padding: 2px 2px 2px 5px;
+        }
+        </style>
+    </head>
     <body>
         <p>Followed fiction update list.</p>
         <table>
             <thead>
                 <tr>
-                    <td>#</td>
-                    <td>Story</td>
-                    <td>Chapter</td>
-                    <td>Status</td>
+                    <th>#</th>
+                    <th>Story</th>
+                    <th>Chapter</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,7 +65,9 @@ class TestTemplateEnvironment(unittest.TestCase):
         </table>
     </body>
 </html>"""
-
+        # print(expected)
+        # print('--------------------------------------------------------->>')
+        # print(rendered)
         self.assertEqual(expected, rendered)
 
 
@@ -58,7 +78,7 @@ class TestSendMail(unittest.TestCase):
             Notification('Title 1', 'Chapter 1', 'www.dummy.com/story?sid=1&chid=1', CHAP_STAT_UPD),
             Notification('Title 1', 'Chapter 2', 'www.dummy.com/story?sid=1&chid=2', CHAP_STAT_NEW)
         ]
-        send_notification(notifications)
+        # send_notification(notifications)
 
 
 if __name__ == '__main__':

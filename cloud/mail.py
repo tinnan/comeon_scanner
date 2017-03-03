@@ -4,7 +4,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from util.utility import CONFIG, SECRET_CONFIG
 import smtplib
 
-ENV = Environment(  # TODO add CSS style to mail template.
+ENV = Environment(
     loader=PackageLoader('cloud', 'mail_templates'),
     autoescape=select_autoescape(['html'])
 )

@@ -1,14 +1,32 @@
 <html>
-    <head></head>
+    <head>
+        <style>
+        table {
+          border-collapse: collapse;
+        }
+
+        table th {
+          background: #98d5fb;
+        }
+
+        table th, td {
+          border: 1px solid;
+        }
+
+        table td {
+          padding: 2px 2px 2px 5px;
+        }
+        </style>
+    </head>
     <body>
         <p>Followed fiction update list.</p>
         <table>
             <thead>
                 <tr>
-                    <td>#</td>
-                    <td>Story</td>
-                    <td>Chapter</td>
-                    <td>Status</td>
+                    <th>#</th>
+                    <th>Story</th>
+                    <th>Chapter</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>{% for n in notifications %}
