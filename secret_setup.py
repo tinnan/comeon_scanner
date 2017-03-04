@@ -1,6 +1,5 @@
 from configparser import ConfigParser
 from pathlib import Path
-import re
 
 secret_path = './conf/secret.ini'
 secret_file = Path(secret_path)
@@ -12,10 +11,10 @@ def invalid_input():
     print('Invalid input. Try again.')
 
 
-def is_valid_config(input):
-    if len(input.strip()) == 0:
+def is_valid_config(uin):
+    if len(uin.strip()) == 0:
         return False
-    elif input.startswith('#'):
+    elif uin.startswith('#'):
         return False
     return True
 
@@ -132,7 +131,6 @@ def action():
                     update_secret(keys[int(uin) - 1])
             else:
                 invalid_input()
-
 
     else:
         # Go straight to creation process.
