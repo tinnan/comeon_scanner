@@ -11,16 +11,16 @@ ENV = Environment(
 
 
 def send_notification(notifications):
-    send_from = CONFIG['app']['mail.from']
-    send_to = CONFIG['app']['mail.to']
+    send_from = CONFIG['mail.from']
+    send_to = CONFIG['mail.to']
     msg = create_message(send_from, send_to, notifications)
     send_email(send_from, send_to, msg)
 
 
 def send_email(send_from, send_to, msg):
-    smtp_host = CONFIG['app']['mail.smtp.host']
-    smtp_port = CONFIG['app']['mail.smtp.port']
-    smtp_secure = CONFIG['app']['mail.smtp.secure']
+    smtp_host = CONFIG['mail.smtp.host']
+    smtp_port = CONFIG['mail.smtp.port']
+    smtp_secure = CONFIG['mail.smtp.secure']
     smtp_password = SECRET_CONFIG['secret']['mail.smtp.password']
     server = smtplib.SMTP(host=smtp_host, port=smtp_port)
     if smtp_secure == 'True':
