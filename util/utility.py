@@ -81,3 +81,15 @@ def extract_id(chapter_url):
         return None
     ret = [matched.group(1), matched.group(2)]
     return ret
+
+
+def get_onedrive_dir():
+    return "C:/Users/{}/OneDrive".format(os.getlogin())
+
+
+def get_follow_list_path():
+    return get_onedrive_dir() + "/{}".format(CONFIG['file.name.follow_list'])
+
+
+def get_history_path():
+    return get_onedrive_dir() + "/{}".format(CONFIG['file.name.history'])

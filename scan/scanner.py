@@ -1,7 +1,11 @@
 import requests
+import os.path
+import json
+import re
 from util import utility
 from lxml import html
 from scan.selectors import *
+from cloud.mail import send_notification
 
 CHAP_STAT_NOT = 0  # Not changed
 CHAP_STAT_NEW = 1  # New chapter
@@ -27,6 +31,12 @@ class Scanner:
         self.config = utility.CONFIG
 
     def scan(self, follow_list, history):
+        """
+        Scan all followed thread in the following list.
+        :param follow_list: following list
+        :param history: scanning history object
+        :return: notification list, the list could be blank
+        """
         # Load page URL from config.
         page_url = self.config['comeon.story.url']
         # Initiate function result.
@@ -230,3 +240,70 @@ class History:
         :return: wrapped history object
         """
         return self.obj
+
+
+def load_follow_list():
+    """
+    Load following list from file.
+    :return: following list, None of there is none or file does not exist
+    """
+    path = utility.get_follow_list_path()
+    pattern = re.compile(r"^\d+$")
+    if os.path.isfile(path):
+        with open(path, encoding='utf-8') as f:
+            contents = f.readlines()
+        # remove leading and trailing whitespace characters
+        contents = [c.strip() for c in contents]
+
+        follow_list = list(filter(lambda l: pattern.match(l) is not None, contents))
+        if len(follow_list) == 0:
+            return None
+        else:
+            return follow_list
+    else:
+        return None  # follow list file does not exist
+
+
+def load_history():
+    """
+    Load scanning history from file.
+    :return: Dict object of history, None if file does not exist
+    """
+    path = utility.get_history_path()
+    if os.path.isfile(path):
+        with open(path, encoding='utf-8') as json_data:
+            return json.load(json_data, encoding='utf-8')
+    else:
+        return {}  # history file does not exist
+
+
+def write_history(history):
+    """
+    Write history dict object to JSON file.
+    :param history: history dict object
+    :return:
+    """
+    path = utility.get_history_path()
+    with open(path, 'w', encoding='utf-8') as out_file:
+        json.dump(history, out_file, indent=2, ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    """
+    Start the scanner.
+    """
+    # Load follow list
+    f = load_follow_list()
+    if f is None:
+        exit(0)
+    # Load history
+    h = load_history()
+    # Scanner object
+    s = Scanner()
+    # Execute scan and get notifications in return
+    n = s.scan(f, h)
+    if len(n) != 0:
+        # have something to notify
+        send_notification(n)
+    # write history to file
+    write_history(h)

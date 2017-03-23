@@ -59,5 +59,20 @@ class TestConfigParser(unittest.TestCase):
         mail_to = CONFIG['mail.to']
         self.assertEqual(mail_to, 'ntin.nan@gmail.com,tin_nan@hotmail.com')
 
+
+class TestGetOneDriveDir(unittest.TestCase):
+
+    def test_get_onedrive_dir(self):
+        dir = get_onedrive_dir()
+        self.assertEqual(dir, "C:/Users/{}/OneDrive".format(os.getlogin()))
+
+    def test_get_follow_list_path(self):
+        path = get_follow_list_path()
+        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_list.txt".format(os.getlogin()))
+
+    def test_get_history_path(self):
+        path = get_history_path()
+        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_history.json".format(os.getlogin()))
+
 if __name__ == '__main__':
     unittest.main()

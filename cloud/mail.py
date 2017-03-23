@@ -33,7 +33,7 @@ def send_email(send_from, send_to, msg):
 def create_message(send_from, send_to, notifications):
     # Create message container.
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Comeon-book.com followed stories alert'
+    msg['Subject'] = 'Comeon-book.com stories alert'
     msg['From'] = send_from
     msg['To'] = send_to
 

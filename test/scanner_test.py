@@ -1,5 +1,5 @@
 import unittest
-from scan.scanner import History, CHAP_STAT_UPD, CHAP_STAT_DEL, CHAP_STAT_NEW, CHAP_STAT_NOT
+from scan.scanner import History, CHAP_STAT_UPD, CHAP_STAT_DEL, CHAP_STAT_NEW, CHAP_STAT_NOT, load_follow_list
 
 
 def create_struct():
@@ -151,3 +151,11 @@ class TestHistoryClass(unittest.TestCase):
 
     def test_get_history(self):
         self.assertEqual(self.his.get_history(), create_struct())
+
+
+class TestLoadFollowList(unittest.TestCase):
+
+    def test_load_follow_list(self):
+        follow_list = load_follow_list()
+        expected = ['11111', '22222', '33333', '55555']
+        self.assertEqual(follow_list, expected)
