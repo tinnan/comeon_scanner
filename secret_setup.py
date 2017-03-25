@@ -30,6 +30,7 @@ def create_secret():
     print("---------------------------------------------------------")  # program section separator.
     print("Creating new key-value pair.")
     print("Type in '#ret' to go back to action menu.")
+    print("Enter key 'mail.smtp.password' for E-mail sender password.")
 
     got_key = False
     while True:
