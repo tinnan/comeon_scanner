@@ -1,11 +1,12 @@
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, PackageLoader, select_autoescape
-from util.utility import CONFIG, SECRET_CONFIG
-import smtplib
+from main import CONFIG, SECRET_CONFIG
+import time
 
 ENV = Environment(
-    loader=PackageLoader('cloud', 'mail_templates'),
+    loader=PackageLoader('src.cloud', 'mail_templates'),
     autoescape=select_autoescape(['html'])
 )
 
@@ -33,7 +34,8 @@ def send_email(send_from, send_to, msg):
 def create_message(send_from, send_to, notifications):
     # Create message container.
     msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Comeon-book.com stories alert'
+    msg['Subject'] = '[TINN Self notify][Comeon-book.com]Followed stories alert {}'.format(
+        time.strftime("%d/%m/%y %H:%M"))
     msg['From'] = send_from
     msg['To'] = send_to
 

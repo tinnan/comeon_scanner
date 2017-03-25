@@ -1,5 +1,6 @@
 import unittest
-from scan.scanner import History, CHAP_STAT_UPD, CHAP_STAT_DEL, CHAP_STAT_NEW, CHAP_STAT_NOT, load_follow_list
+
+from src.scan.scanner import History, CHAP_STAT_UPD, CHAP_STAT_NEW, CHAP_STAT_NOT, load_follow_list, Scanner
 
 
 def create_struct():
@@ -159,3 +160,12 @@ class TestLoadFollowList(unittest.TestCase):
         follow_list = load_follow_list()
         expected = ['11111', '22222', '33333', '55555']
         self.assertEqual(follow_list, expected)
+
+class TestRunScanner(unittest.TestCase):
+
+    def test_run(self):
+        s = Scanner()
+        h = History({})
+        n = s.scan([30303], h)
+        print(n)
+        print(h)

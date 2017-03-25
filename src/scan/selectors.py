@@ -15,4 +15,4 @@ CHAPTER_ROW_TBL_SELECTOR = CSSSelector('table:nth-child(5) '
                                'table')
 CHAPTER_SELECTOR = CSSSelector('td:first-child > a > font')
 CHAPTER_DATE_SELECTOR = CSSSelector('td:nth-child(2)')
-CHAPTER_LINK_SELECTOR = CSSSelector('td:nth-child(2) > a')
+CHAPTER_LINK_SELECTOR = CSSSelector('td:first-child > a')

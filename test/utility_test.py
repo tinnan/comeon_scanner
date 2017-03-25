@@ -1,5 +1,6 @@
 import unittest
-from util.utility import *
+from src.util.utility import *
+from main import CONFIG
 
 
 class TestChapterIdsExtractor(unittest.TestCase):
@@ -64,15 +65,15 @@ class TestGetOneDriveDir(unittest.TestCase):
 
     def test_get_onedrive_dir(self):
         dir = get_onedrive_dir()
-        self.assertEqual(dir, "C:/Users/{}/OneDrive".format(os.getlogin()))
+        self.assertEqual(dir, "C:/Users/{}/OneDrive/comeon_scan".format(os.getlogin()))
 
     def test_get_follow_list_path(self):
         path = get_follow_list_path()
-        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_list.txt".format(os.getlogin()))
+        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_scan/comeon_list.txt".format(os.getlogin()))
 
     def test_get_history_path(self):
         path = get_history_path()
-        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_history.json".format(os.getlogin()))
+        self.assertEqual(path, "C:/Users/{}/OneDrive/comeon_scan/comeon_history.json".format(os.getlogin()))
 
 if __name__ == '__main__':
     unittest.main()

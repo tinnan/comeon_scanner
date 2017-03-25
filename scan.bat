@@ -1,5 +1,5 @@
-# Execution environment variable
+rem Execution environment variable
 set COMEON_ENV=prod
 
-# Execute scanner
-python scanner.py
+rem Execute scanner
+python main.py

@@ -1,6 +1,7 @@
 import unittest
-from cloud.mail import *
-from scan.scanner import Notification, CHAP_STAT_UPD, CHAP_STAT_NEW
+
+from src.cloud.mail import *
+from src.scan.scanner import Notification, CHAP_STAT_UPD, CHAP_STAT_NEW
 
 
 class TestTemplateEnvironment(unittest.TestCase):

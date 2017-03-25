@@ -1,11 +1,11 @@
-import requests
-import os.path
 import json
+import os.path
 import re
-from util import utility
+import requests
+from src.util import utility
 from lxml import html
-from scan.selectors import *
-from cloud.mail import send_notification
+from src.scan import selectors
+from main import CONFIG, get_environ_param
 
 CHAP_STAT_NOT = 0  # Not changed
 CHAP_STAT_NEW = 1  # New chapter
@@ -19,8 +19,8 @@ def get_page(sid):
     :param sid: story id
     :return: page contents as byte code
     """
-    page_url = utility.CONFIG.config['comeon.story.url']
-    if utility.get_environ_param() == 'prod':
+    page_url = CONFIG.config['comeon.story.url']
+    if get_environ_param() == 'prod':
         return requests.get(page_url.format(str(sid))).content
     return None  # TODO change to return dummy comeon-book story page.
 
@@ -28,7 +28,7 @@ def get_page(sid):
 class Scanner:
 
     def __init__(self):
-        self.config = utility.CONFIG
+        self.config = CONFIG
 
     def scan(self, follow_list, history):
         """
@@ -45,40 +45,40 @@ class Scanner:
             for sid in follow_list:
                 try:
                     # TODO should be able to inject page content according to execution environment
-                    content = requests.get(page_url.format(str(sid)))
+                    page = requests.get(page_url.format(str(sid)))
                 except:
                     print('Something went wrong while the program trying to open the URL. Try again later.')
                     continue
 
-                tree = html.fromstring(content)
-                title_e = TITLE_SELECTOR(tree)
+                tree = html.fromstring(page.content)
+                title_e = selectors.TITLE_SELECTOR(tree)
                 if title_e and title_e[0] is not None:
                     title = title_e[0].text
                 else:
                     print('No title, assume that this story page does not actually exist.')
                     continue
 
-                chapter_table = CHAPTER_ROW_TBL_SELECTOR(tree)
+                chapter_table = selectors.CHAPTER_ROW_TBL_SELECTOR(tree)
 
                 if chapter_table:
-                    chapter_names = CHAPTER_SELECTOR(chapter_table[0])
-                    chapter_dates = CHAPTER_DATE_SELECTOR(chapter_table[0])
-                    chapter_links = CHAPTER_LINK_SELECTOR(chapter_table[0])
+                    chapter_names = selectors.CHAPTER_SELECTOR(chapter_table[0])
+                    chapter_dates = selectors.CHAPTER_DATE_SELECTOR(chapter_table[0])
+                    chapter_links = selectors.CHAPTER_LINK_SELECTOR(chapter_table[0])
                     if chapter_names:
                         # Chapter count
                         chapter_count = len(chapter_names)
                         # Chapter id list for checking deleted chapters.
                         chid_list = []
-                        for i in range(0, chapter_count - 1):
-                            chapter_url = chapter_links[i].attr['href']
+                        for i in range(chapter_count):
+                            chapter_url = chapter_links[i].attrib['href']
                             chapter_name = chapter_names[i].text
-                            chapter_date = chapter_dates[i].text
+                            chapter_date = chapter_dates[i].text[:8]  # substring only first 8 characters (date part)
                             # Get chapter id.
                             story_ids = utility.extract_id(chapter_url)
                             chid = story_ids[1]
                             chid_list.append(chid)
                             # Check chapter status.
-                            chapter_status = history.chapter_status(sid, chid)
+                            chapter_status = history.chapter_status(sid, chid, chapter_name, chapter_date)
                             if chapter_status == CHAP_STAT_NOT:
                                 continue  # No update, continue to next chapter.
                             elif chapter_status == CHAP_STAT_NEW:
@@ -91,10 +91,10 @@ class Scanner:
                             # Build notification list.
                             notification_list.append(
                                 Notification(title, chapter_name,
-                                             self.config['comeon.base.url'].format(chapter_url)))
+                                             ''.join([self.config['comeon.base.url'], '/', chapter_url]), chapter_status))
 
                         # Manage history, find deleted chapter.
-                        del_chids = history.find_deleted_chapter(chid_list)
+                        del_chids = history.find_deleted_chapter(sid, chid_list)
                         if del_chids:
                             # Has chapter to delete.
                             [history.del_chapter(sid, del_chid) for del_chid in del_chids]  # Delete chapter.
@@ -286,24 +286,3 @@ def write_history(history):
     path = utility.get_history_path()
     with open(path, 'w', encoding='utf-8') as out_file:
         json.dump(history, out_file, indent=2, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    """
-    Start the scanner.
-    """
-    # Load follow list
-    f = load_follow_list()
-    if f is None:
-        exit(0)
-    # Load history
-    h = load_history()
-    # Scanner object
-    s = Scanner()
-    # Execute scan and get notifications in return
-    n = s.scan(f, h)
-    if len(n) != 0:
-        # have something to notify
-        send_notification(n)
-    # write history to file
-    write_history(h)
