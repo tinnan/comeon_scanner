@@ -4,7 +4,7 @@ import os.path
 import re
 import requests
 from lxml import html
-from setup import CONFIG, APP_SYSTEM_ENV
+from initialize import CONFIG, APP_SYSTEM_ENV
 from src.scan import selectors
 from src.util import utility
 

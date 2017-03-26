@@ -4,7 +4,7 @@ import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, PackageLoader, select_autoescape
-from setup import CONFIG, SECRET_CONFIG
+from initialize import CONFIG, SECRET_CONFIG
 
 mod_logger = logging.getLogger('src.cloud.mail')
 

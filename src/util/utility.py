@@ -1,6 +1,6 @@
 import os
 import re
-from setup import CONFIG
+from initialize import CONFIG
 
 
 def diff_list(first, second):

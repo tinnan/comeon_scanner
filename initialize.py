@@ -1,21 +1,15 @@
 from configparser import ConfigParser, ExtendedInterpolation
 import os
 import logging
+import logging.handlers
 
-# Name of environment variable for application execution
-APP_SYSTEM_ENV = 'COMEON_ENV'
+APP_SYSTEM_ENV = 'COMEON_ENV'  # Name of environment variable for application execution
 
-# Setup logging
+# Setup logger
 logger = logging.getLogger('src')
 logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-if os.environ.get(APP_SYSTEM_ENV) == 'prod':
-    fh = logging.FileHandler('log/scan.log')  # Log to file handler
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
 
 sh = logging.StreamHandler()  # Log to console handler
 sh.setLevel(logging.DEBUG)
@@ -30,6 +24,26 @@ logger.debug('Set constant PROJECT_ROOT = %s', PROJECT_ROOT)
 logger.debug('Setting constant for configuration directory path...')
 CONFIG_DIR = os.path.join(PROJECT_ROOT, 'conf')
 logger.debug('Set constant CONFIG_DIR = %s', CONFIG_DIR)
+
+logger.debug('Setting constant for log directory path...')
+LOG_DIR = os.path.join(PROJECT_ROOT, 'log')
+logger.debug('Set constant LOG_DIR = %s', LOG_DIR)
+
+logger.debug('Setting constant for log file name...')
+LOG_FILENAME = os.path.join(LOG_DIR, 'scan.log')
+logger.debug('Set constant LOG_FILENAME = %s', LOG_FILENAME)
+
+# Setup log file rotation
+if os.environ.get(APP_SYSTEM_ENV) == 'prod':
+    if not os.path.isdir(LOG_DIR):
+        os.makedirs(LOG_DIR)
+    need_roll = os.path.isfile(LOG_FILENAME)
+    fh = logging.handlers.RotatingFileHandler(LOG_FILENAME, backupCount=48)  # Log to file handler
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(formatter)
+    if need_roll:  # Do roll over to new file if log exists
+        fh.doRollover()
+    logger.addHandler(fh)
 
 # Simplified configuration dict.
 # Contains only key-value, no need to specify section as sections are union together.
