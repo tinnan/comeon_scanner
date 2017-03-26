@@ -17,7 +17,7 @@ logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 if get_environ_param() == 'prod':
-    fh = logging.FileHandler('scan.log')  # Log to file handler
+    fh = logging.FileHandler('log/scan.log')  # Log to file handler
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     logger.addHandler(fh)

@@ -98,3 +98,6 @@ ENV/
 
 # Secret configuration file
 /conf/secret.ini
+
+# Log folder
+log/
