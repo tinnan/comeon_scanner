@@ -1,10 +1,10 @@
+import logging
 import smtplib
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, PackageLoader, select_autoescape
-from main import CONFIG, SECRET_CONFIG
-import time
-import logging
+from setup import CONFIG, SECRET_CONFIG
 
 mod_logger = logging.getLogger('src.cloud.mail')
 

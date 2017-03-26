@@ -1,12 +1,12 @@
 import json
+import logging
 import os.path
 import re
 import requests
-import logging
-from src.util import utility
 from lxml import html
+from setup import CONFIG, APP_SYSTEM_ENV
 from src.scan import selectors
-from main import CONFIG, get_environ_param
+from src.util import utility
 
 CHAP_STAT_NOT = 0  # Not changed
 CHAP_STAT_NEW = 1  # New chapter
@@ -23,7 +23,7 @@ def get_page(sid):
     :return: page contents as byte code
     """
     page_url = CONFIG.config['comeon.story.url']
-    if get_environ_param() == 'prod':
+    if os.environ.get(APP_SYSTEM_ENV) == 'prod':
         return requests.get(page_url.format(str(sid))).content
     return None  # TODO change to return dummy comeon-book story page.
 
@@ -79,7 +79,6 @@ class Scanner:
                         # Chapter id list for checking deleted chapters.
                         chid_list = []
                         for i in range(chapter_count):
-                            self.logger.debug('------------------------------------------------------')
                             chapter_url = chapter_links[i].attrib['href']
                             chapter_name = chapter_names[i].text
                             chapter_date = chapter_dates[i].text[:8]  # substring only first 8 characters (date part)
@@ -87,9 +86,12 @@ class Scanner:
                             chapter_ids = utility.extract_id(chapter_url)
                             chid = chapter_ids[1]
                             chid_list.append(chid)
+
+                            self.logger.debug('Checking CHID: %s', chid)
                             # Check chapter status.
                             chapter_status = history.chapter_status(sid, chid, chapter_name, chapter_date)
                             if chapter_status == CHAP_STAT_NOT:
+                                self.logger.debug('No update in this chapter.')
                                 continue  # No update, continue to next chapter.
                             elif chapter_status == CHAP_STAT_NEW:
                                 # Manage history, add new chapter.

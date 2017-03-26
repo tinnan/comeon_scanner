@@ -1,6 +1,6 @@
 import os
 import re
-import main
+from setup import CONFIG
 
 
 def diff_list(first, second):
@@ -46,12 +46,12 @@ def extract_id(chapter_url):
 
 
 def get_onedrive_dir():
-    return main.CONFIG['file.dir'].format(os.getlogin())
+    return CONFIG['file.dir'].format(os.getlogin())
 
 
 def get_follow_list_path():
-    return get_onedrive_dir() + "/{}".format(main.CONFIG['file.name.follow_list'])
+    return get_onedrive_dir() + "/{}".format(CONFIG['file.name.follow_list'])
 
 
 def get_history_path():
-    return get_onedrive_dir() + "/{}".format(main.CONFIG['file.name.history'])
+    return get_onedrive_dir() + "/{}".format(CONFIG['file.name.history'])

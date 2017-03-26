@@ -2,13 +2,8 @@ from configparser import ConfigParser, ExtendedInterpolation
 import os
 import logging
 
-
-def get_environ_param():
-    """
-    Get execution environment from system param 'COMEON_ENV'.
-    :return: execution environment
-    """
-    return os.environ.get('COMEON_ENV')
+# Name of environment variable for application execution
+APP_SYSTEM_ENV = 'COMEON_ENV'
 
 # Setup logging
 logger = logging.getLogger('src')
@@ -16,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-if get_environ_param() == 'prod':
+if os.environ.get(APP_SYSTEM_ENV) == 'prod':
     fh = logging.FileHandler('log/scan.log')  # Log to file handler
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
@@ -49,7 +44,7 @@ try:
     parser.read(config_path)
     CONFIG = parser['app']
     # Get OS environment for execution environment, which will be set in .BAT file.
-    env_param = get_environ_param()
+    env_param = os.environ.get(APP_SYSTEM_ENV)
     if env_param is not None:
         logger.debug('Reading and overwrite configuration for environment: %s', env_param)
         env_section = parser[env_param]
@@ -73,29 +68,5 @@ try:
     logger.debug('Initializing application secret configuration completed.')
 except Exception as e:
     logger.exception('Secret configuration file read failed. '
-                     'Make sure to run secret_setup.bat before starting the application.')
+                     'Make sure to run secret_setup.bat before starting the application.', e)
     exit(1)
-
-from src.scan import scanner
-from src.cloud import mail
-
-if __name__ == "__main__":
-    """
-    Start the scanner.
-    """
-    logger.info('Starting followed fiction thread scanner...')
-    # Load follow list
-    f = scanner.load_follow_list()
-    if f is not None:
-        # Load history
-        h = scanner.History(scanner.load_history())
-        # Scanner object
-        s = scanner.Scanner()
-        # Execute scan and get notifications in return
-        n = s.scan(f, h)
-        if len(n) != 0:
-            # have something to notify
-            mail.send_notification(n)
-        # write history to file
-        scanner.write_history(h.get_history())
-    logger.info('Scanning process ended.')

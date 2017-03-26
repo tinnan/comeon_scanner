@@ -1,6 +1,6 @@
 import unittest
+
 from src.util.utility import *
-from main import CONFIG
 
 
 class TestChapterIdsExtractor(unittest.TestCase):
