@@ -1,6 +1,4 @@
 import logging
-import sys
-print(sys.path)
 from src.scan import scanner
 from src.cloud import mail
 
