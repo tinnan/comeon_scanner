@@ -2,6 +2,7 @@ import json
 import os.path
 import re
 import requests
+import logging
 from src.util import utility
 from lxml import html
 from src.scan import selectors
@@ -11,6 +12,8 @@ CHAP_STAT_NOT = 0  # Not changed
 CHAP_STAT_NEW = 1  # New chapter
 CHAP_STAT_UPD = 2  # Updated chapter
 CHAP_STAT_DEL = 3  # Deleted chapter
+
+mod_logger = logging.getLogger('src.scan.scanner')
 
 
 def get_page(sid):
@@ -28,6 +31,7 @@ def get_page(sid):
 class Scanner:
 
     def __init__(self):
+        self.logger = logging.getLogger('src.scan.scanner.Scanner')
         self.config = CONFIG
 
     def scan(self, follow_list, history):
@@ -45,17 +49,21 @@ class Scanner:
             for sid in follow_list:
                 try:
                     # TODO should be able to inject page content according to execution environment
+                    self.logger.debug('------------------------------------------------------')
+                    self.logger.debug('Get story page content from URL: %s', page_url)
                     page = requests.get(page_url.format(str(sid)))
                 except:
-                    print('Something went wrong while the program trying to open the URL. Try again later.')
+                    self.logger.warning('Something went wrong while the program trying to open the URL: %s', page_url)
                     continue
 
                 tree = html.fromstring(page.content)
                 title_e = selectors.TITLE_SELECTOR(tree)
                 if title_e and title_e[0] is not None:
                     title = title_e[0].text
+                    self.logger.debug('Found story: %s', title)
                 else:
-                    print('No title, assume that this story page does not actually exist.')
+                    self.logger.warning('Story title not found for story ID: %s, '
+                                        'it is assumed that this story page does not actually exist.', sid)
                     continue
 
                 chapter_table = selectors.CHAPTER_ROW_TBL_SELECTOR(tree)
@@ -67,15 +75,17 @@ class Scanner:
                     if chapter_names:
                         # Chapter count
                         chapter_count = len(chapter_names)
+                        self.logger.debug('Found %s chapter for story ID: %s', chapter_count, sid)
                         # Chapter id list for checking deleted chapters.
                         chid_list = []
                         for i in range(chapter_count):
+                            self.logger.debug('------------------------------------------------------')
                             chapter_url = chapter_links[i].attrib['href']
                             chapter_name = chapter_names[i].text
                             chapter_date = chapter_dates[i].text[:8]  # substring only first 8 characters (date part)
                             # Get chapter id.
-                            story_ids = utility.extract_id(chapter_url)
-                            chid = story_ids[1]
+                            chapter_ids = utility.extract_id(chapter_url)
+                            chid = chapter_ids[1]
                             chid_list.append(chid)
                             # Check chapter status.
                             chapter_status = history.chapter_status(sid, chid, chapter_name, chapter_date)
@@ -91,24 +101,35 @@ class Scanner:
                             # Build notification list.
                             notification_list.append(
                                 Notification(title, chapter_name,
-                                             ''.join([self.config['comeon.base.url'], '/', chapter_url]), chapter_status))
+                                             ''.join([self.config['comeon.base.url'], '/',
+                                                      chapter_url]), chapter_status))
 
                         # Manage history, find deleted chapter.
                         del_chids = history.find_deleted_chapter(sid, chid_list)
                         if del_chids:
+                            self.logger.debug('------------------------------------------------------')
+                            self.logger.info('Found %s deleted chapters.', len(del_chids))
                             # Has chapter to delete.
-                            [history.del_chapter(sid, del_chid) for del_chid in del_chids]  # Delete chapter.
-
+                            for del_chid in del_chids:
+                                history.del_chapter(sid, del_chid)  # Delete chapter.
+        self.logger.debug('------------------------------------------------------')
+        self.logger.info('Found %s chapters to notify.', len(notification_list))
         return notification_list
 
 
 class Notification:
 
     def __init__(self, title, chapter, link, status):
+        logger = logging.getLogger('src.scan.scanner.Notification')
+        logger.debug('Creating notification...')
         self.title = title
         self.chapter = chapter
         self.link = link
         self.status = status
+        logger.debug('Title: %s', title)
+        logger.debug('Chapter: %s', chapter)
+        logger.debug('Chapter url: %s', link)
+        logger.debug('Status: %s', self.get_status())
 
     def get_title(self):
         return self.title
@@ -132,6 +153,7 @@ class Notification:
 
 class History:
     def __init__(self, obj):
+        self.logger = logging.getLogger('src.scan.scanner.History')
         self.obj = obj
 
     def has_sid(self, sid):
@@ -162,10 +184,16 @@ class History:
         :param date: chapter update date
         :return:
         """
+        self.logger.debug('Adding new chapter for SID: %s and CHID: %s', sid, chid)
         if not self.has_sid(sid):
+            self.logger.debug('Creating structure for new story...')
             self.obj[sid] = {}  # Initiate class structure for new story.
         if not self.has_chapter(sid, chid):
+            self.logger.debug('Creating structure for new chapter...')
             self.obj[sid][chid] = {}  # Initiate class structure for new chapter.
+        self.logger.debug('Set chapter = %s', chapter)
+        self.logger.debug('Set date = %s', date)
+
         self.obj[sid][chid]['chapter'] = chapter
         self.obj[sid][chid]['date'] = date
 
@@ -180,6 +208,10 @@ class History:
         """
         if self.has_sid(sid) and self.has_chapter(sid, chid):
             # Do update
+            self.logger.debug('Updating chapter of SID: %s and CHID: %s', sid, chid)
+            self.logger.debug('Set chapter = %s', chapter)
+            self.logger.debug('Set date = %s', date)
+
             self.obj[sid][chid]['chapter'] = chapter
             self.obj[sid][chid]['date'] = date
 
@@ -191,6 +223,7 @@ class History:
         :return:
         """
         if self.has_chapter(sid, chid):
+            self.logger.debug('Deleting chapter of SID: %s amd CHID: %s', sid, chid)
             self.obj.get(sid).pop(chid)
 
     def chapter_count(self, sid):
@@ -248,6 +281,7 @@ def load_follow_list():
     :return: following list, None of there is none or file does not exist
     """
     path = utility.get_follow_list_path()
+    mod_logger.info('Loading following list from: %s', path)
     pattern = re.compile(r"^\d+$")
     if os.path.isfile(path):
         with open(path, encoding='utf-8') as f:
@@ -257,10 +291,13 @@ def load_follow_list():
 
         follow_list = list(filter(lambda l: pattern.match(l) is not None, contents))
         if len(follow_list) == 0:
+            mod_logger.info('Following list is empty.')
             return None
         else:
+            mod_logger.info('Following list loading completed.')
             return follow_list
     else:
+        mod_logger.info('Following list file does not exist.')
         return None  # follow list file does not exist
 
 
@@ -270,10 +307,14 @@ def load_history():
     :return: Dict object of history, None if file does not exist
     """
     path = utility.get_history_path()
+    mod_logger.info('Loading scanning history from: %s', path)
     if os.path.isfile(path):
         with open(path, encoding='utf-8') as json_data:
-            return json.load(json_data, encoding='utf-8')
+            h = json.load(json_data, encoding='utf-8')
+            mod_logger.info('Scanning history loading completed.')
+            return h
     else:
+        mod_logger.info('Scanning history file does not exist.')
         return {}  # history file does not exist
 
 
@@ -284,5 +325,7 @@ def write_history(history):
     :return:
     """
     path = utility.get_history_path()
+    mod_logger.info('Writing scanning history to file: %s', path)
     with open(path, 'w', encoding='utf-8') as out_file:
         json.dump(history, out_file, indent=2, ensure_ascii=False)
+    mod_logger.info('Writing scanning history completed.')

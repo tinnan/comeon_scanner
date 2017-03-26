@@ -161,6 +161,7 @@ class TestLoadFollowList(unittest.TestCase):
         expected = ['11111', '22222', '33333', '55555']
         self.assertEqual(follow_list, expected)
 
+
 class TestRunScanner(unittest.TestCase):
 
     def test_run(self):
