@@ -1,6 +1,5 @@
 from configparser import ConfigParser, ExtendedInterpolation
 import os
-import logging
 import logging.handlers
 
 APP_SYSTEM_ENV = 'COMEON_ENV'  # Name of environment variable for application execution
@@ -72,6 +71,7 @@ try:
         logger.debug('CONFIG[%s] = %s', key, CONFIG[key])
 except Exception as e:
     logger.exception('Application configuration file read failed.', e)
+    # TODO raise exceptions and handling them at top level application
     exit(1)
 
 # Secret configuration.
@@ -83,4 +83,5 @@ try:
 except Exception as e:
     logger.exception('Secret configuration file read failed. '
                      'Make sure to run secret_setup.bat before starting the application.', e)
+    # TODO raise exceptions and handling them at top level application
     exit(1)

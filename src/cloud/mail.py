@@ -1,6 +1,7 @@
 import logging
 import smtplib
 import time
+import socket
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -35,14 +36,18 @@ def send_email(send_from, send_to, msg):
     mod_logger.debug('Login password: %s', smtp_password)
     mod_logger.info('Sending to: %s', send_to)
 
-    server = smtplib.SMTP(host=smtp_host, port=smtp_port)
-    if smtp_secure == 'True':
-        server.starttls()
-    server.login(send_from, smtp_password)
+    try:
+        server = smtplib.SMTP(host=smtp_host, port=smtp_port, timeout=30)
+        if smtp_secure == 'True':
+            server.starttls()
+        server.login(send_from, smtp_password)
 
-    server.sendmail(send_from, send_to, msg.as_string())
-    mod_logger.info('Notification e-mail is sent.')
-    server.quit()
+        server.sendmail(send_from, send_to, msg.as_string())
+        mod_logger.info('Notification e-mail is sent.')
+        server.quit()
+    except socket.timeout:
+        mod_logger.info('Failed to send notification e-mail.')
+        # TODO handling other exception such as socket.gaierror, smtplib.SMTPServerDisconnected
 
 
 def create_message(send_from, send_to, notifications):

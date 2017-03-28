@@ -1,5 +1,5 @@
 import unittest
-
+import socket
 from src.cloud.mail import *
 from src.scan.scanner import Notification, CHAP_STAT_UPD, CHAP_STAT_NEW
 
@@ -80,6 +80,19 @@ class TestSendMail(unittest.TestCase):
             Notification('Title 1', 'Chapter 2', 'www.dummy.com/story?sid=1&chid=2', CHAP_STAT_NEW)
         ]
         # send_notification(notifications)
+
+    def test_timeout(self):
+        notifications = [
+            Notification('Title 1', 'Chapter 1', 'www.dummy.com/story?sid=1&chid=1', CHAP_STAT_UPD),
+            Notification('Title 1', 'Chapter 2', 'www.dummy.com/story?sid=1&chid=2', CHAP_STAT_NEW)
+        ]
+        msg = create_message('aaa', 'bbb', notifications)
+        try:
+            send_email('aaa', 'bbb', msg)
+        except socket.timeout:
+            pass
+
+        self.fail('Expect socket.timeout')
 
 
 if __name__ == '__main__':
