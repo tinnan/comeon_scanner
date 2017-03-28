@@ -45,9 +45,9 @@ def send_email(send_from, send_to, msg):
         server.sendmail(send_from, send_to, msg.as_string())
         mod_logger.info('Notification e-mail is sent.')
         server.quit()
-    except socket.timeout:
-        mod_logger.info('Failed to send notification e-mail.')
-        # TODO handling other exception such as socket.gaierror, smtplib.SMTPServerDisconnected
+    except Exception as e:
+        mod_logger.exception('Failed to send notification e-mail.', e)
+        raise
 
 
 def create_message(send_from, send_to, notifications):

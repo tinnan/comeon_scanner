@@ -71,8 +71,7 @@ try:
         logger.debug('CONFIG[%s] = %s', key, CONFIG[key])
 except Exception as e:
     logger.exception('Application configuration file read failed.', e)
-    # TODO raise exceptions and handling them at top level application
-    exit(1)
+    raise
 
 # Secret configuration.
 SECRET_CONFIG = ConfigParser()
@@ -83,5 +82,4 @@ try:
 except Exception as e:
     logger.exception('Secret configuration file read failed. '
                      'Make sure to run secret_setup.bat before starting the application.', e)
-    # TODO raise exceptions and handling them at top level application
-    exit(1)
+    raise
