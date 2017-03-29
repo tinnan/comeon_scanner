@@ -37,7 +37,7 @@ if os.environ.get(APP_SYSTEM_ENV) == 'prod':
     if not os.path.isdir(LOG_DIR):
         os.makedirs(LOG_DIR)
     need_roll = os.path.isfile(LOG_FILENAME)
-    fh = logging.handlers.RotatingFileHandler(LOG_FILENAME, backupCount=48)  # Log to file handler
+    fh = logging.handlers.RotatingFileHandler(LOG_FILENAME, backupCount=48, encoding="utf-8")  # Log to file handler
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     if need_roll:  # Do roll over to new file if log exists
