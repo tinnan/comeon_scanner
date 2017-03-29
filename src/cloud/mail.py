@@ -28,6 +28,11 @@ def send_email(send_from, send_to, msg):
     smtp_port = CONFIG['mail.smtp.port']
     smtp_secure = CONFIG['mail.smtp.secure']
     smtp_password = SECRET_CONFIG['secret']['mail.smtp.password']
+    mail_send = CONFIG['mail.send']
+
+    if mail_send == 'False':
+        mod_logger.info('Application configuration is set to not sending e-mail. Sending process is skipped.')
+        return
 
     mod_logger.debug('SMTP host name: %s', smtp_host)
     mod_logger.debug('SMTP host port: %s', smtp_port)
