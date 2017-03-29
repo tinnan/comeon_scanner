@@ -166,7 +166,18 @@ class TestRunScanner(unittest.TestCase):
 
     def test_run(self):
         s = Scanner()
-        h = History({})
-        n = s.scan([30303], h)
+        h = History({
+            "30303": {
+                "60775": {
+                  "chapter": "Ep 1 100%",
+                  "date": "01-12-16"
+                },
+                "99999": {
+                  "chapter": "Ep 2  100% ",
+                  "date": "23-01-17"
+                }
+            }
+        })
+        n = s.scan(["30303"], h)
         print(n)
         print(h)

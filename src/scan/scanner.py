@@ -42,16 +42,17 @@ class Scanner:
         :return: notification list, the list could be blank
         """
         # Load page URL from config.
-        page_url = self.config['comeon.story.url']
+        page_url_template = self.config['comeon.story.url']
         # Initiate function result.
         notification_list = []
         if follow_list:
             for sid in follow_list:
                 try:
                     # TODO should be able to inject page content according to execution environment
+                    page_url = page_url_template.format(str(sid))
                     self.logger.debug('------------------------------------------------------')
                     self.logger.debug('Get story page content from URL: %s', page_url)
-                    page = requests.get(page_url.format(str(sid)))
+                    page = requests.get(page_url)
                 except:
                     self.logger.warning('Something went wrong while the program trying to open the URL: %s', page_url)
                     continue
@@ -96,9 +97,15 @@ class Scanner:
                             elif chapter_status == CHAP_STAT_NEW:
                                 # Manage history, add new chapter.
                                 history.add_chapter(sid, chid, chapter_name, chapter_date)
+                                # Log the update.
+                                self.logger.info('[New] chapter report -> sid: %s  chid: %s  title: %s  chapter: %s',
+                                                 sid, chid, title, chapter_name)
                             else:
                                 # Manage history, update chapter.
                                 history.upd_chapter(sid, chid, chapter_name, chapter_date)
+                                # Log the update.
+                                self.logger.info('[Updated] chapter report -> sid: %s  chid: %s  title: %s  chapter: %s',
+                                                 sid, chid, title, chapter_name)
 
                             # Build notification list.
                             notification_list.append(
@@ -113,7 +120,17 @@ class Scanner:
                             self.logger.info('Found %s deleted chapters.', len(del_chids))
                             # Has chapter to delete.
                             for del_chid in del_chids:
+                                # Create notification for deleted chapter.
+                                del_chapter = history.get_chapter(sid, del_chid).get('chapter')
+                                notification_list.append(
+                                    Notification(title, del_chapter,
+                                                 page_url,  # since the chapter is already deleted,
+                                                            # lead to the story page instead.
+                                                 CHAP_STAT_DEL))
                                 history.del_chapter(sid, del_chid)  # Delete chapter.
+                                # Log the deletion.
+                                self.logger.info('[Deleted] chapter report -> sid: %s  chid: %s  title: %s  chapter: %s',
+                                                 sid, del_chid, title, del_chapter)
         self.logger.debug('------------------------------------------------------')
         self.logger.info('Found %s chapters to notify.', len(notification_list))
         return notification_list
@@ -225,7 +242,7 @@ class History:
         :return:
         """
         if self.has_chapter(sid, chid):
-            self.logger.debug('Deleting chapter of SID: %s amd CHID: %s', sid, chid)
+            self.logger.debug('Deleting chapter of SID: %s and CHID: %s', sid, chid)
             self.obj.get(sid).pop(chid)
 
     def chapter_count(self, sid):
@@ -268,6 +285,17 @@ class History:
         # extract history chapter list
         his_chid_list = [e[1] for e in list(enumerate(self.obj.get(sid)))]
         return utility.diff_list(his_chid_list, chid_list)
+
+    def get_chapter(self, sid, chid):
+        """
+        Get chapter from specified story id and chapter id.
+        :param sid: story id
+        :param chid: chapter id
+        :return: chapter dict object
+        """
+        if self.has_chapter(sid, chid):
+            return self.obj.get(sid).get(chid)
+        return None
 
     def get_history(self):
         """
