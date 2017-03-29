@@ -26,6 +26,8 @@ if __name__ == "__main__":
             # write history to file
             scanner.write_history(h.get_history())
     except:
+        logger.info('------------------------SCANNER END WITH ERROR  {}------------------------'.format(
+            time.strftime('%a %d/%m/%y %H:%M:%S')))
         exit(1)
     logger.info('Scanning process ended.')
     logger.info('------------------------SCANNER END  {}------------------------'.format(

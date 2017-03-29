@@ -69,8 +69,8 @@ try:
     logger.debug('Initializing application configuration completed.')
     for key in CONFIG:
         logger.debug('CONFIG[%s] = %s', key, CONFIG[key])
-except Exception as e:
-    logger.exception('Application configuration file read failed.', e)
+except:
+    logger.exception('Application configuration file read failed.')
     raise
 
 # Secret configuration.
@@ -79,7 +79,7 @@ try:
     logger.debug('Initializing application secret configuration...')
     SECRET_CONFIG.read(os.path.join(CONFIG_DIR, 'secret.ini'))
     logger.debug('Initializing application secret configuration completed.')
-except Exception as e:
+except:
     logger.exception('Secret configuration file read failed. '
-                     'Make sure to run secret_setup.bat before starting the application.', e)
+                     'Make sure to run secret_setup.bat before starting the application.')
     raise

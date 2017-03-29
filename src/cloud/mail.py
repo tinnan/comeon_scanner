@@ -45,8 +45,8 @@ def send_email(send_from, send_to, msg):
         server.sendmail(send_from, send_to, msg.as_string())
         mod_logger.info('Notification e-mail is sent.')
         server.quit()
-    except Exception as e:
-        mod_logger.exception('Failed to send notification e-mail.', e)
+    except:
+        mod_logger.exception('Failed to send notification e-mail.')
         raise
 
 
