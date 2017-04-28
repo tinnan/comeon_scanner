@@ -56,6 +56,7 @@ class Scanner:
                 except requests.exceptions.Timeout:
                     self.logger.warning('Failed to receive a response within expected duration when trying '
                                         'to open the URL: %s', page_url)
+                    continue
                 except:
                     self.logger.warning('Something went wrong while the program trying to open the URL: %s', page_url)
                     continue
