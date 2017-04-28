@@ -52,7 +52,10 @@ class Scanner:
                     page_url = page_url_template.format(str(sid))
                     self.logger.debug('------------------------------------------------------')
                     self.logger.debug('Get story page content from URL: %s', page_url)
-                    page = requests.get(page_url)
+                    page = requests.get(page_url, timeout=5)
+                except requests.exceptions.Timeout:
+                    self.logger.warning('Failed to receive a response within expected duration when trying '
+                                        'to open the URL: %s', page_url)
                 except:
                     self.logger.warning('Something went wrong while the program trying to open the URL: %s', page_url)
                     continue
